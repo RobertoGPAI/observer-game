@@ -1,5 +1,7 @@
 # The Observer Game
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21400090.svg)](https://doi.org/10.5281/zenodo.21400090)
+
 A behavioral benchmark for token-budgeted LLM agents: **what actually
 governs a budgeted agent — structure, information, narrative, or its own
 goals?**

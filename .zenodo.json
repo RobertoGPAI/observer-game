@@ -1,0 +1,19 @@
+{
+  "title": "The Observer Game: a behavioral benchmark for token-budgeted LLM agents",
+  "creators": [
+    {
+      "name": "García-Patrón, Roberto",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "keywords": [
+    "LLM agents",
+    "benchmark",
+    "token budget",
+    "AI governance",
+    "multi-agent systems",
+    "denial-of-wallet"
+  ]
+}
