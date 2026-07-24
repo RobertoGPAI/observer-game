@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
 
 import matplotlib
@@ -33,6 +34,11 @@ MUTED = "#888888"
 
 BUDGET = 12_000
 OUT = Path("figures")
+
+# matplotlib stamps a wall-clock CreationDate into every PDF, so two runs of
+# identical content differ in bytes. Pinning it (and the producer string)
+# makes the PDF byte-reproducible, matching the PNG.
+_PDF_META = {"CreationDate": None, "Producer": None, "Creator": None}
 
 plt.rcParams.update({
     "font.size": 8.5, "axes.titlesize": 9, "axes.labelsize": 8.5,
@@ -76,8 +82,11 @@ def fig1(rows: list[dict]) -> None:
             if not runs:
                 continue
             color = BLUE if is_wall(cell) else VERM
-            # deterministic horizontal jitter: seed on run index
-            xs = [i + (((hash((cell, j)) % 1000) / 1000 - 0.5) * 0.55)
+            # Horizontal jitter, deterministic ACROSS processes. Python's
+            # hash() is salted per interpreter (PYTHONHASHSEED), so the old
+            # hash((cell, j)) moved every point on every run -- the figure was
+            # not reproducible. random.Random seeded on a stable string is.
+            xs = [i + random.Random(f"{cell}:{j}").uniform(-0.275, 0.275)
                   for j in range(len(runs))]
             ax.scatter(xs, [r["spent_task"] for r in runs],
                        s=9, facecolors="none" if is_wall(cell) else color,
@@ -95,7 +104,7 @@ def fig1(rows: list[dict]) -> None:
                  ha="center")
     axes[0].text(7.5, 1_700, "walled", fontsize=7.5, color=BLUE, ha="center")
     print(f"fig1: {dropped} zero-spend provider casualties excluded")
-    fig.savefig(OUT / "fig1_wall_binds.pdf")
+    fig.savefig(OUT / "fig1_wall_binds.pdf", metadata=_PDF_META)
     fig.savefig(OUT / "fig1_wall_binds.png")
     plt.close(fig)
 
@@ -123,7 +132,7 @@ def fig2(rows: list[dict]) -> None:
     ax.legend(frameon=False, fontsize=7, loc="upper right")
     ax.grid(axis="y", color="#DDDDDD", lw=0.4, zorder=0)
     ax.set_title("Same wall, zero overshoot on both sides", loc="left")
-    fig.savefig(OUT / "fig2_decapitation.pdf")
+    fig.savefig(OUT / "fig2_decapitation.pdf", metadata=_PDF_META)
     fig.savefig(OUT / "fig2_decapitation.png")
     plt.close(fig)
 
@@ -182,7 +191,7 @@ def fig3(rows: list[dict]) -> None:
     ax.set_ylabel("self-estimate (tokens, log)")
     ax.legend(frameon=False, fontsize=7, loc="lower right")
     ax.grid(color="#DDDDDD", lw=0.4, zorder=0)
-    fig.savefig(OUT / "fig3_introspection.pdf")
+    fig.savefig(OUT / "fig3_introspection.pdf", metadata=_PDF_META)
     fig.savefig(OUT / "fig3_introspection.png")
     plt.close(fig)
 
